@@ -1,11 +1,14 @@
 import Image
+import random
 
-def createImage():
+def createImage(points=None, colors=None):
     dim = 512
     im = Image.new("RGB", (dim,dim), "white")
     pix = im.load()
-    points = ((0,0),(256,256),(512,512))
-    colors = ((30,120,10),(230,120,50),(120,30,200))
+    if points is None:
+        points = ((0,0),(256,256),(512,512))
+    if colors is None:    
+        colors = ((30,120,10),(230,120,50),(120,30,200))
     split = im.split()
     source = (split[0].load(), split[1].load(), split[2].load())
     for x in range(512):
@@ -15,11 +18,24 @@ def createImage():
                 source[j][x,y] = 0
                 for i in range(len(colors)):
                     source[j][x,y] += int(colors[i][j]*ratio[i])
-            
+                    if source[j][x,y] > 256:
+                        print "modulus used"
+                source[j][x,y] /= len(ratio)               
     im = Image.merge(im.mode, split)   
-    for color in colors:
-        Image.new("RGB", im.size, color).show()
     im.show()
+def getPoints(n, side=512):
+    points = []
+    colors = []
+    for i in range(n):
+        pt = []
+        color = []
+        for i in range(2):
+            pt.append(random.randint(0,side-1))
+        for i in range(3):
+            color.append(random.randint(0,255))
+        points.append(pt)
+        colors.append(color)
+    return (points, colors)
 def minDistance(cur, points):
     dist = 1000
     for point in points:
@@ -40,4 +56,5 @@ def ratios(cur, points):
     return output
 def distance(pt1, pt2):
     return ((pt1[0]-pt2[0])**2+(pt1[1]-pt2[1])**2)**(0.5)
-createImage()
+definition = getPoints(3)
+createImage(definition[0], definition[1])
